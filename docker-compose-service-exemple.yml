@@ -1,0 +1,17 @@
+services:
+  portainer:
+    image: image
+    restart: always
+    environment:
+      VIRTUAL_HOST: portainer.russoft-it.ru
+      LETSENCRYPT_HOST: portainer.russoft-it.ru
+      LETSENCRYPT_EMAIL: rewbed@gmail.com
+      VIRTUAL_PORT: 9000 # Указываем порт, на котором работает сервис в рамках сети докера
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true

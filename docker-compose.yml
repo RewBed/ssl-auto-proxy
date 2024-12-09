@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    container_name: nginx-proxy
+    restart: always
+    ports:
+      - "80:80"    # HTTP
+      - "443:443"  # HTTPS
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro # Для автоматического обнаружения контейнеров
+      - ./nginx/certs:/etc/nginx/certs:ro        # Директория для SSL-сертификатов
+      - ./nginx/vhost.d:/etc/nginx/vhost.d       # Индивидуальные настройки хостов
+      - ./nginx/html:/usr/share/nginx/html       # Статические файлы
+    networks:
+      - proxy
+    labels:
+      com.github.nginx-proxy.nginx: "true"       # Метка для nginx-letsencrypt
+
+  nginx-letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: nginx-letsencrypt
+    restart: always
+    environment:
+      DEFAULT_EMAIL: rewbed@gmail.com           # Ваш email для уведомлений Let's Encrypt
+      NGINX_PROXY_CONTAINER: nginx-proxy        # Указываем контейнер nginx-proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./nginx/certs:/etc/nginx/certs
+      - ./nginx/vhost.d:/etc/nginx/vhost.d
+      - ./nginx/html:/usr/share/nginx/html
+    networks:
+      - proxy
+
+volumes:
+  portainer_data:
+
+networks:
+  proxy:
+    external: true
