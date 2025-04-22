@@ -1,41 +1,38 @@
-version: '3.8'
-
 services:
-  nginx-proxy:
-    image: jwilder/nginx-proxy
-    container_name: nginx-proxy
-    restart: always
-    ports:
-      - "80:80"    # HTTP
-      - "443:443"  # HTTPS
+  web:
+    container_name: web
+    build:
+      dockerfile: ./docker/php/Dockerfile
     volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro # Для автоматического обнаружения контейнеров
-      - ./nginx/certs:/etc/nginx/certs:ro        # Директория для SSL-сертификатов
-      - ./nginx/vhost.d:/etc/nginx/vhost.d       # Индивидуальные настройки хостов
-      - ./nginx/html:/usr/share/nginx/html       # Статические файлы
-    networks:
-      - proxy
-    labels:
-      com.github.nginx-proxy.nginx: "true"       # Метка для nginx-letsencrypt
-
-  nginx-letsencrypt:
-    image: jrcs/letsencrypt-nginx-proxy-companion
-    container_name: nginx-letsencrypt
+      - ./modx:/var/www/html/
+      - ./docker/apache/000-default.conf:/etc/apache2/sites-available/000-default-dev.conf
     restart: always
     environment:
-      DEFAULT_EMAIL: rewbed@gmail.com           # Ваш email для уведомлений Let's Encrypt
-      NGINX_PROXY_CONTAINER: nginx-proxy        # Указываем контейнер nginx-proxy
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./nginx/certs:/etc/nginx/certs
-      - ./nginx/vhost.d:/etc/nginx/vhost.d
-      - ./nginx/html:/usr/share/nginx/html
+      VIRTUAL_HOST: russoft-it.ru
+      LETSENCRYPT_HOST: russoft-it.ru
+      LETSENCRYPT_EMAIL: rewbed@gmail.com
+      VIRTUAL_PORT: 80 # Указываем порт, на котором работает сервис в рамках сети докера
     networks:
-      - proxy
-
-volumes:
-  portainer_data:
+      - proxy-net-v1
+  db:
+    container_name: db
+    image: mariadb
+    restart: always
+    command: --init-file /data/application/init.sql
+    volumes:
+      - ./docker/mariadb/init.sql:/data/application/init.sql
+      - ./docker/mariadb/db:/var/lib/mysql
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: modx
+      MYSQL_USER: root
+      MYSQL_PASSWORD: secret
+    networks:
+      - proxy-net-v1
 
 networks:
-  proxy:
-    external: true
+  proxy-net-v1:
+    driver: bridge
+    name: proxy-net-v1
