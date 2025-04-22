@@ -10,8 +10,9 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - proxy
+      - proxy-net-v1
 
 networks:
-  proxy:
-    external: true
+  proxy-net-v1:
+    driver: bridge
+    name: proxy-net-v1
