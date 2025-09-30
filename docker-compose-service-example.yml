@@ -3,10 +3,10 @@ services:
     image: image
     restart: always
     environment:
-      VIRTUAL_HOST: ${VIRTUAL_HOST}
-      LETSENCRYPT_HOST: ${LETSENCRYPT_HOST}
-      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
-      VIRTUAL_PORT: ${VIRTUAL_PORT}
+      VIRTUAL_HOST: ${AUTO_SSL_VIRTUAL_HOST}
+      LETSENCRYPT_HOST: ${AUTO_SSL_LETSENCRYPT_HOST}
+      LETSENCRYPT_EMAIL: ${AUTO_SSL_LETSENCRYPT_EMAIL}
+      VIRTUAL_PORT: ${AUTO_SSL_VIRTUAL_PORT}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
