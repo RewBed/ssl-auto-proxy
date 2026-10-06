@@ -34,4 +34,4 @@ services:
 networks:
   proxy-network-v1:
     name: proxy-network-v1
-    driver: bridge
+    external: true
