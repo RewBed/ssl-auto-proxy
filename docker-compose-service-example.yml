@@ -14,5 +14,5 @@ services:
 
 networks:
   proxy-net-v1:
-    driver: bridge
+    external: true
     name: proxy-net-v1
